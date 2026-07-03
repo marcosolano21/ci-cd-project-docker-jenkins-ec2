@@ -7,12 +7,12 @@
 
     - name: Change to project directory and pull latest Docker images
       shell: |
-        cd ~/ci-cd-project-docker-jenkins-ec2
+        cd /home/ubuntu/ci-cd-proyect
         docker compose pull
 
     - name: Restart the application
       shell: |
-        cd ~/ci-cd-project-docker-jenkins-ec2
+        cd /home/ubuntu/ci-cd-proyect
         docker compose up -d
 
     - name: Verify running containers
