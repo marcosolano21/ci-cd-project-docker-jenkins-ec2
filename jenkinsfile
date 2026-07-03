@@ -1,6 +1,6 @@
 pipeline {
     agent any
-// Another test for the branch
+
     stages {
 
         stage('Checkout') {
@@ -130,11 +130,11 @@ pipeline {
             steps {
                 sshagent(credentials: ['ec2-ssh-key']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@34.207.198.223 "
+                        ssh -o StrictHostKeyChecking=no ubuntu@54.164.230.123  "
                             cd /home/ubuntu/ci-cd-proyect/ &&
-                            git pull &&
-                            docker compose down &&
-                            docker compose up -d --build
+                            docker compose pull
+                            docker compose down
+                            docker compose up -d
                         "
                     '''
                 }
@@ -143,10 +143,9 @@ pipeline {
         
         stage('Verify Deployment') {
             steps {
-                sh 'curl -f http://34.207.198.223'  | grep "System Monitor"
+                sh 'curl -f http://54.164.230.123 '
             }
         }
-        
         
     }
 
