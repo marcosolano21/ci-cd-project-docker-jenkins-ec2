@@ -1,10 +1,12 @@
 # Key Features:
-Automated CI/CD pipeline with Jenkins
-Dockerized Flask and Nginx application
-Reverse proxy configuration with Nginx
-Docker Compose orchestration
-Automated deployment to AWS EC2 via SSH
-Health checks and functional testing
+Dockerized Flask and Nginx application.
+Nginx configured as a reverse proxy for the Flask application.
+Automated CI/CD pipeline using Jenkins.
+Docker image publishing to Docker Hub.
+Automated deployment to an AWS EC2 instance using Ansible.
+Docker Compose orchestration for multi-container deployment.
+Health checks and functional validation during the CI pipeline.
+Infrastructure automation with Ansible playbooks.
 
 # Project Overview
 
@@ -35,12 +37,15 @@ This project also includes a **Jenkins pipeline** that automates the build, test
 
 The pipeline performs the following stages:
 
-* Checkout the source code from GitHub.
-* Build the Docker images.
-* Start the application containers.
-* Perform a health check on the Nginx web server.
-* Execute a functional test to verify that the application is working correctly.
-* Deploy the latest version of the application to a running AWS EC2 instance.
+* Checkout – Retrieves the latest source code from the GitHub repository.
+* Build – Builds the Flask and Nginx Docker images.
+* Start Containers – Starts the application locally inside the Jenkins environment.
+* Health Check – Verifies that the application is reachable through Nginx.
+* Functional Test – Confirms that the expected web page is served correctly.
+* Docker Login – Authenticates Jenkins with Docker Hub.
+* Push Images – Pushes the latest Docker images to Docker Hub.
+* Deploy (Ansible) – Jenkins executes an Ansible playbook that connects to the EC2 instance via SSH, pulls the latest Docker images from Docker Hub, and updates the running application using Docker Compose.
+* Verify Deployment – Confirms that the application is running successfully after deployment.
 
 The deployment server (EC2) hosts the same Docker Compose application, allowing Jenkins to automatically update the running containers whenever a new version is deployed.
 
@@ -50,41 +55,36 @@ The deployment workflow is illustrated below:
 
 ```
 Developer
-    │
-git push
-    │
-    ▼
+    │ 
+    ▼ 
+ Git Push
+    │ 
+    ▼ 
 GitHub Repository
-    │
-    ▼
-Jenkins Pipeline
-    │
-    ▼
-AWS EC2 Instance
-    │
-    ▼
-Docker Compose
-    │
-    ▼
-Updated Application
+    │ 
+    ▼ 
+Jenkins Pipeline 
+    │ 
+    ├── Checkout 
+    ├── Build 
+    ├── Health Check 
+    ├── Functional Test 
+    ├── Docker Login 
+    ├── Push Images to Docker Hub 
+    └── Deploy with Ansible 
+                │ 
+                ▼ 
+            AWS EC2 Instance 
+                │ 
+            docker compose pull 
+                │ 
+            docker compose up -d 
+                │ 
+                ▼ 
+            Updated Running Application
 ```
 
-This project demonstrates the integration of containerization, reverse proxy configuration, automated testing, and continuous deployment using Docker, Docker Compose, Jenkins, Nginx, Flask, GitHub, and AWS EC2.
-
-
-Pipeline Stages:
-
-| Stage            | Description                                              |
-| ---------------- | -------------------------------------------------------- |
-| Checkout         | Clones the latest version from GitHub                    |
-| Build            | Builds the Docker images                                 |
-| Start Containers | Starts the Flask and Nginx containers                    |
-| Health Check     | Verifies that Nginx is responding                        |
-| Functional Test  | Confirms the application returns the expected HTML       |
-| Deploy           | Connects to the EC2 instance and updates the application |
-| Verify Deploymnt | Verifies the EC2 instance is responding                  |
-| Cleanup          | Stops the local test environment                         |
-
+This project demonstrates the integration of containerization, reverse proxy configuration, automated testing, and continuous deployment using Docker, Docker Compose, Jenkins, Nginx, Flask, GitHub, DockerHub, Ansible and AWS EC2.
 
 # Project Structure
 
@@ -93,6 +93,7 @@ Pipeline Stages:
 * **`Dockerfile`** – Defines the custom Jenkins image used to run the CI/CD pipeline locally with the required Docker tools installed.
 * **`Jenkinsfile`** – Defines the Jenkins CI/CD pipeline, including the build, testing, and deployment stages.
 * **`docker-compose.yml`** – Defines and orchestrates the Flask and Nginx containers.
+* **`ansible/`** - Contains the Ansible configuration, inventory, and deployment playbook used by Jenkins during the CD stage.
 
 # Running the Application
 
@@ -120,9 +121,16 @@ To deploy the application using the CD stage of the Jenkins pipeline, an AWS EC2
 
 The following software must be installed on the EC2 instance:
 
+* Ubuntu
 * Git
 * Docker Engine
 * Docker Compose
+* The project repository cloned on the instance.
+* The ubuntu user added to the docker group.
+* Port 22 open for SSH.
+* Port 80 open for HTTP traffic.
+* SSH access configured between Jenkins and the EC2 instance.
+* The EC2 instance added to the Ansible inventory (ansible/inventory.ini)
 
 Example installation:
 
@@ -133,15 +141,6 @@ sudo usermod -aG docker ubuntu
 ```
 
 > **Note:** After adding the `ubuntu` user to the `docker` group, log out and log back in (or restart the instance) for the changes to take effect.
-
-## Network Configuration
-
-The EC2 Security Group should allow the following inbound traffic:
-
-| Port | Protocol | Purpose                                                     |
-| ---- | -------- | ----------------------------------------------------------- |
-| 22   | SSH      | Remote access from Jenkins (or your public IP during setup) |
-| 80   | HTTP     | Access to the web application                               |
 
 ## Project Setup
 
@@ -154,8 +153,9 @@ git clone https://github.com/marcosolano21/ci-cd-project-docker-jenkins-ec2.git
 Build and start the application:
 
 ```bash
-cd ci-cd-proyect
+cd ci-cd-project-docker-jenkins
 docker compose up -d --build
+docker compose up -d
 ```
 
 Once the containers are running, the application should be accessible from:
@@ -190,7 +190,7 @@ http://<EC2_PUBLIC_IP>
 
 ## Build the Jenkins Docker Image
 
-To build the custom Jenkins image used for the CI/CD pipeline, run:
+To build the custom Jenkins image used for the CI/CD pipeline, run on project´s root directory:
 
 ```bash
 docker build -t my-jenkins .
