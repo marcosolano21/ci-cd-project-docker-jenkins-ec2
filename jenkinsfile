@@ -22,7 +22,6 @@ pipeline {
         stage('Build') {
             steps {
                 echo '========== BUILD =========='
-                //sh 'docker compose build'
                 sh '''
                     docker build -t marcosolano/flask:latest \
                         -t marcosolano/flask:${BUILD_NUMBER} \
@@ -94,7 +93,7 @@ pipeline {
                 }
             }            
         }
-        // Docker login
+        // Docker login, needed for deployment stage
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
@@ -112,7 +111,7 @@ pipeline {
         }
         //
         
-        // Push images
+        // Push images to Docker Hub
         stage('Push Images') {
             steps {
                 sh '''
@@ -124,18 +123,14 @@ pipeline {
                 '''
             }
         }
-        ///
-        
+
         stage('Deploy') {
             steps {
                 sshagent(credentials: ['ec2-ssh-key']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@54.164.230.123  "
-                            cd /home/ubuntu/ci-cd-proyect/ &&
-                            docker compose pull
-                            docker compose down
-                            docker compose up -d
-                        "
+                            ansible-playbook \
+                            -i ansible/inventory.ini \
+                            ansible/playbook.yaml
                     '''
                 }
             }
