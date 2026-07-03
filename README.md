@@ -2,13 +2,14 @@
 Dockerized Flask and Nginx application.
 Nginx configured as a reverse proxy for the Flask application.
 Automated CI/CD pipeline using Jenkins.
-Docker image publishing to Docker Hub.
 Automated deployment to an AWS EC2 instance using Ansible.
 Docker Compose orchestration for multi-container deployment.
 Health checks and functional validation during the CI pipeline.
 Infrastructure automation with Ansible playbooks.
 
 # Project Overview
+
+This project demonstrates the integration of containerization, reverse proxy configuration, automated testing, and continuous deployment using Docker, Docker Compose, Jenkins, Nginx, Flask, GitHub, DockerHub, Ansible and AWS EC2.
 
 ## The Application
 
@@ -51,7 +52,7 @@ The deployment server (EC2) hosts the same Docker Compose application, allowing 
 
 The Jenkins instance itself runs inside a Docker container on a local machine and includes the required Docker tools to execute the pipeline.
 
-The deployment workflow is illustrated below:
+The pipeline workflow is illustrated below:
 
 ```
 Developer
@@ -84,7 +85,6 @@ Jenkins Pipeline
             Updated Running Application
 ```
 
-This project demonstrates the integration of containerization, reverse proxy configuration, automated testing, and continuous deployment using Docker, Docker Compose, Jenkins, Nginx, Flask, GitHub, DockerHub, Ansible and AWS EC2.
 
 # Project Structure
 
@@ -121,7 +121,6 @@ To deploy the application using the CD stage of the Jenkins pipeline, an AWS EC2
 
 The following software must be installed on the EC2 instance:
 
-* Ubuntu
 * Git
 * Docker Engine
 * Docker Compose
