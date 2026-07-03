@@ -1,0 +1,25 @@
+---
+- name: Deploy application to EC2
+  hosts: web
+  become: false
+
+  tasks:
+
+    - name: Change to project directory and pull latest Docker images
+      shell: |
+        cd ~/ci-cd-project-docker-jenkins-ec2
+        docker compose pull
+
+    - name: Restart the application
+      shell: |
+        cd ~/ci-cd-project-docker-jenkins-ec2
+        docker compose up -d
+
+    - name: Verify running containers
+      shell: |
+        docker ps
+      register: docker_ps
+
+    - name: Display running containers
+      debug:
+        var: docker_ps.stdout_lines
