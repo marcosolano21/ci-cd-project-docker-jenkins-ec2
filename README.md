@@ -153,7 +153,7 @@ Build and start the application:
 
 ```bash
 cd ci-cd-project-docker-jenkins
-docker compose up -d --build
+docker compose build 
 docker compose up -d
 ```
 
