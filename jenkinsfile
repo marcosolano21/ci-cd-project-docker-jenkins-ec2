@@ -6,7 +6,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo '========== CHECKOUT =========='
-                git url: 'https://github.com/marcosolano21/ci-cd-project-docker-jenkins-ec2.git', branch: 'jenkis-dockerhub-ansible'
+                git url: 'https://github.com/marcosolano21/ci-cd-project-docker-jenkins-ec2.git', branch: 'main'
             }
             post {
                 success {
